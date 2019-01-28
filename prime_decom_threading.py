@@ -24,9 +24,7 @@ class worker(threading.Thread):
         self.end = end
     def run(self):
         print >> sys.stdout, "Starting: %s" % (self.name)
-        threadLock.acquire()
         total_work(self.name, self.begin, self.end)
-        threadLock.release()
 # This function returns the prime number decomposition of the argument 'n'
 # This segment of code was copied from https://rosettacode.org/wiki/Prime_decomposition#Python
 def fac(n):
@@ -45,32 +43,15 @@ def total_work(threadName, begin, end):
 
 ###############################
 
-threadLock = threading.Lock()
-threads = []
+if __name__ == '__main__':
+    threads = []
+    start = time.time()
+    for i in range(1,6):
+        thread = worker("thread"+str(i), 1+((i-1)*10000), 1+i*10000)
+        threads.append(thread)
+        thread.start()
 
-thread1 = worker("thread1", 1, 10000)
-thread2 = worker("thread2", 10001, 20000)
-thread3 = worker("thread3", 20001, 30000)
-thread4 = worker("thread4", 30001, 40000)
-thread5 = worker("thread5", 40001, 50000)
-
-
-start = time.time()
-
-thread1.start()
-thread2.start()
-thread3.start()
-thread4.start()
-thread5.start()
-
-threads.append(thread1)
-threads.append(thread2)
-threads.append(thread3)
-threads.append(thread4)
-threads.append(thread5)
-
-for t in threads:
-    t.join()
-
-totalTime = time.time() - start
-print("Total time taken for this task is %s seconds" % (totalTime))
+    for t in threads:
+        t.join()
+    totalTime = time.time() - start
+    print("Total time taken for this task is %s seconds" % (totalTime))
